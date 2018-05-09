@@ -7,3 +7,5 @@ Grasslands throughout North America are threatened by land use change. Fortunate
 We performed an experimental study to test the palatability and preference of native versus cultivar blue grama by grasshopper herbivores. We found strong evidence that cultivar blue grama was more palatable than native as well as weak evidence for grasshopper preference of cultivar plants. Water content was similar between the two grass types and is thus unlikely to determine feeding behavior. Nutrient composition results were mixed however, revealing greater carbon to nitrogen (C:N) ratios in cultivar plants but no differences in silica content. 
 
 This study indicates that choice of accession in shortgrass steppe restoration efforts could have broader ecological effects. Herbivores may be particularly impacted by different nutrient availability among plant ecotypes. Managers will have to weight the costs and benefits of commercial cultivars versus uncultivated native accessions when considering how they might be affected by arthropod herbivores.
+
+**Data available upon request**
