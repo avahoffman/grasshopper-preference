@@ -1,6 +1,33 @@
-setwd("/Users/avahoffman/Documents/CSU/Research/Mentoring/Holly")
-hopper_water <- read.csv("water_weight_data.csv",header=T)
+###########################################################################################
+##
+## R source code to accompany Hoffman, Perretta, and Smith (2018), last updated 26 October 2017.
+## Please contact Ava Hoffman (avamariehoffman@gmail.com) with questions.
+##
+## If you found this code useful, please cite the accompanying paper. Thank you! :)
+## 
+##
+###########################################################################################
 
+## SET YOUR WORKING DIRECTORY TO WHEREVER YOU HAVE DOWNLOADED ACCOMPANYING FILES
+wd <- '<your path here>'
+setwd(wd)
+setwd("/Users/avahoffman/Documents/CSU/Research/Mentoring/Holly")
+
+library(ggplot2)
+library(rstan)
+library(nlme)
+library(graphics)
+options(mc.cores = parallel::detectCores())
+library(coda)
+library(mcmcplots)
+
+
+###########################################################################################
+## This code examines the difference in water content and mass.
+###########################################################################################
+
+
+hopper_water <- read.csv("water_weight_data.csv",header=T)
 part <- hopper_water[!(hopper_water$type == "n-old"),]
 part$ldmc <- part$dry / (part$wet /1000)
 summary(lm(wet~dry + type, data=part))
@@ -10,8 +37,6 @@ mean(c.part$ldmc);mean(c.part$ldmc)-(3*sd(c.part$ldmc));mean(c.part$ldmc)+(3*sd(
 n.part <- part[(part$type == 'n'),];hist(n.part$ldmc)
 mean(n.part$ldmc);mean(n.part$ldmc)-(3*sd(n.part$ldmc));mean(n.part$ldmc)+(3*sd(n.part$ldmc))
 
-
-library(ggplot2)
 
 #pdf(file="waterweight.pdf",height=4,width=4)
 ggplot(part, aes(x=wet, y=dry, color=type)) + 
@@ -27,10 +52,6 @@ ggplot(part, aes(x=wet, y=dry, color=type)) +
 #dev.off()
 
 
-library(rstan)
-library(nlme)
-library(graphics)
-options(mc.cores = parallel::detectCores())
 
 water_model <- "
 data{
@@ -72,18 +93,16 @@ generated quantities{
 
 comp = stan_model(model_code = water_model,model_name = 'Model')
 
-library(coda)
 stan2coda <- function(fit) { #got this function off the internet. Will turn stan object into a coda object.
   mcmc.list(lapply(1:ncol(fit), function(x)
     mcmc(as.array(fit)[,x,])))
 }
-library(mcmcplots)
 
 #############################################################
 #aboveground productivity
 modeldat1 = list('N' = nrow(part),
                  'y' = part$dry,
-                 'D' = part$wet, #nate said I should revers wet and dry.. so that's why the model annotations may not make sense
+                 'D' = part$wet, #was told to reverse wet and dry.. so that's why the model annotations may not make sense
                  'T' = as.numeric(part$type) - 1)
 fit1 = sampling(comp,data = modeldat1,iter = 150000,chains = 4)
 coda1 = stan2coda(fit1)
