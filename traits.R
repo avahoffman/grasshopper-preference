@@ -63,7 +63,7 @@ ggdat$x <- as.numeric(ggdat$x) ; ggdat$y <- as.numeric(ggdat$y)
 
 
 trait_names <- list(
-  '2LDMC'=expression(paste("LDMC (mg ",g^-1,")")),
+  '2LDMC'=expression(paste("DMC (mg ",g^-1,")")),
   '1Mass'="Dry mass (mg)",
   '3CN'="C:N",
   '4Silica'="Silica %"
