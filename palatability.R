@@ -1,6 +1,6 @@
 ###########################################################################################
 ##
-## R source code to accompany Hoffman, Perretta, and Smith (2018), last updated 26 October 2017.
+## R source code to accompany Hoffman, Perretta, Lemoine, and Smith (2019), last updated 14 December 2018.
 ## Please contact Ava Hoffman (avamariehoffman@gmail.com) with questions.
 ##
 ## If you found this code useful, please cite the accompanying paper. Thank you! :)
@@ -19,8 +19,24 @@ library(ggplot2)
 ###########################################################################################
 
 hopper_data <- read.csv("palatability.csv",header=T)
-summary(lm(diff~container_type + grasshopper_mass, data=hopper_data)) ## test for 'type' effect (frequentist)
+
+## quick check for outliers
+boxplot(diff ~ breed, data=hopper_data)
+boxplot.stats(hopper_data$diff)$out
+
+## appears to be one outlier - impute the mean for 'wild type' plants
+outlier_value <- boxplot.stats(hopper_data$diff)$out 
+hopper_data$diff[(hopper_data$diff == outlier_value)] <- NA ## replace with NA first
+n_mean <- mean(na.omit(hopper_data$diff[(hopper_data$breed == 'W')])) ## calculate the mean
+hopper_data$diff[(is.na(hopper_data$diff))] <- n_mean
+
+## test for 'type/breed' effect (frequentist)
+summary(lm(diff~ breed + grasshopper_mass, data=hopper_data))
 ggplot(hopper_data, aes(x=container_type, y=diff, color=container_type)) + geom_boxplot() +geom_jitter(size=1.5) + theme_bw() ## quick look at how the palatability differs
+
+ggplot(hopper_data) + geom_density(aes(x=diff,fill=breed),alpha=0.5) + theme_classic() +
+  xlab("Mass consumed (mg)") +
+  scale_fill_manual(values=c("springgreen3","darkgreen"),labels=c("Cultivar","Wild type"))
 
 library(rstan)
 options(mc.cores = parallel::detectCores())
@@ -29,22 +45,25 @@ options(mc.cores = parallel::detectCores())
 grasshopper_model <- "
 data {
 int<lower=0> N; // number of observations
-int<lower=0> J; // number of types : 2, cultivar and native
+int<lower=0> J; // number of types : 2, cultivar and wild type
 vector[N] y; // amount consumed
 vector[N] x; // grasshopper mass
-int type[N]; // cultivar or native
+int type[N]; // cultivar or wild type
 real m_x; // mean grasshopper mass
+vector[N] mass; // wet mass
+real m_m; // mean wet mass
 }
 parameters {
 real<lower=0> sigma_a;
 vector[J] a;
 vector[J] b;
+vector[J] c;
 vector<lower=0>[J] sigma;
 real mu_a;
 }
 transformed parameters{
 vector[N] mu;
-mu = a[type] + b[type].*x; 
+mu = a[type] + b[type].*x + c[type].*mass; 
 }
 model {
 //priors
@@ -53,6 +72,7 @@ sigma ~ cauchy(0,10);
 //model
 a ~ normal(mu_a, sigma_a);
 b ~ normal(0,100);
+c ~ normal(0,100);
 y ~ normal(mu, sigma[type]);
 }
 generated quantities{
@@ -64,7 +84,7 @@ for(j in 1:J){
 draws1[n] = normal_rng(mu[n], sigma[j]); //posterior draws
 }
 for(j in 1:J){
-palat[j] = a[j] + b[j].*m_x;
+palat[j] = a[j] + b[j].*m_x + c[j].*m_m;
 }
 diff[1] = palat[1] - palat[2];
 }
@@ -80,7 +100,9 @@ model_data = list(
   'y' = hopper_data$diff,
   'type' = as.numeric(as.factor(hopper_data$breed)),
   'x' =  hopper_data$grasshopper_mass,
-  'm_x' = mean(hopper_data$grasshopper_mass)
+  'm_x' = mean(hopper_data$grasshopper_mass),
+  'mass' = hopper_data$wet_initial,
+  'm_m' = mean(hopper_data$wet_initial)
 )
 ## sampling
 fit1 = sampling(
@@ -96,6 +118,7 @@ save(summary_fit,file="Palatability.output.R")
 load("Palatability.output.R")
 
 ## plot posterior draws to ensure a good fit.
+library(bayesplot)
 list_of_draws <- extract(fit1)
 yrep <- list_of_draws$draws1
 ppc_dens_overlay(hopper_data$diff, yrep[1:500, ]) + 
@@ -109,12 +132,12 @@ model_stats1 <-
         summary_fit$summary[, 10, drop = F])
 
   
-ggdata <- as.data.frame(model_stats1[89:90,])
-containerlabs <- c("Cultivar","Native")
+#ggdata <- as.data.frame(model_stats1[89:90,])
+ggdata <- as.data.frame(model_stats1[91:92,])
+containerlabs <- c("Cultivar","Wild type")
 ggdata <- cbind(ggdata,containerlabs)
-pdf(file="palatability.pdf",height=3,width=4)
 cult_lab <- expression(paste("Cultivar"))
-nat_lab <-  expression(paste("Native "))
+nat_lab <-  expression(paste("Wild type"))
 ggplot(ggdata, aes(y=containerlabs, x=mean, group=containerlabs, color=containerlabs)) +
   xlab("Mass consumed (mg)") +
   ylab("Palatability") +
@@ -126,5 +149,6 @@ ggplot(ggdata, aes(y=containerlabs, x=mean, group=containerlabs, color=container
   geom_vline(xintercept = 0) +
   geom_errorbarh(aes(xmin=`2.5%`, xmax=`97.5%`), size=1)+
   scale_y_discrete(labels = c(cult_lab, nat_lab)) 
-dev.off()
+ggsave(file="palatability.jpg",height=3,width=4)
+
 

@@ -1,6 +1,6 @@
 ###########################################################################################
 ##
-## R source code to accompany Hoffman, Perretta, and Smith (2018), last updated 26 October 2017.
+## R source code to accompany Hoffman, Perretta, Lemoine, and Smith (2019), last updated 14 December 2018.
 ## Please contact Ava Hoffman (avamariehoffman@gmail.com) with questions.
 ##
 ## If you found this code useful, please cite the accompanying paper. Thank you! :)
@@ -18,8 +18,26 @@ library(ggplot2)
 ###########################################################################################
 
 hopper_data <- read.csv("preference.csv",header=T)
-ggplot(hopper_data, aes(x=breed, y=diff, color=grasshopper_mass)) + geom_boxplot() +geom_jitter(size=1.5) + theme_bw() ## quick look at how the palatability differs
-summary(lm(diff~breed + grasshopper_mass, data=hopper_data)) ## test for grasshopper mass effect (frequentist)
+
+## quick check for outliers
+boxplot(diff~container_type, data=hopper_data)
+boxplot.stats(hopper_data$diff)$out
+
+## appears to be two outliers - impute the mean for 'wild type' or for 'cultivar' plants
+outlier_value <- boxplot.stats(hopper_data$diff)$out 
+hopper_data$diff[(hopper_data$diff == outlier_value[2])] <- NA ## replace with NA first
+n_mean <- mean(na.omit(hopper_data$diff[(hopper_data$breed == 'W')])) ## calculate the mean
+hopper_data$diff[(is.na(hopper_data$diff))] <- n_mean
+hopper_data$diff[(hopper_data$diff == outlier_value[1])] <- NA ## replace with NA first
+c_mean <- mean(na.omit(hopper_data$diff[(hopper_data$breed == 'C')])) ## calculate the mean
+hopper_data$diff[(is.na(hopper_data$diff))] <- c_mean
+
+## test for 'type' effect (frequentist)
+summary(lm(diff~ breed + grasshopper_mass, data=hopper_data))
+ggplot(hopper_data, aes(x=container_type, y=diff, color=container_type)) + geom_boxplot() +geom_jitter(size=1.5) + theme_bw() ## quick look at how the palatability differs
+
+ggplot(hopper_data) + geom_density(aes(x=diff),alpha=0.5) + theme_classic() +
+  xlab("Mass consumed difference (mg)")
 
 library(rstan)
 options(mc.cores = parallel::detectCores())
@@ -28,22 +46,25 @@ options(mc.cores = parallel::detectCores())
 grasshopper_model <- "
 data {
 int<lower=0> N; // number of observations
-int<lower=0> J; // number of types : 2, cultivar and native
+int<lower=0> J; // number of types : 2, cultivar and wild type
 vector[N] y; // amount consumed
 vector[N] x; // grasshopper mass
-int type[N]; // cultivar or native
+int type[N]; // cultivar or wild type
 real m_x; // mean grasshopper mass
+vector[N] mass; // wet mass
+real m_m; // mean wet mass
 }
 parameters {
 real<lower=0> sigma_a;
 vector[J] a;
 vector[J] b;
+vector[J] c;
 vector<lower=0>[J] sigma;
 real mu_a;
 }
 transformed parameters{
 vector[N] mu;
-mu = a[type] + b[type].*x; 
+mu = a[type] + b[type].*x + c[type].*mass; 
 }
 model {
 //priors
@@ -52,6 +73,7 @@ sigma ~ cauchy(0,10);
 //model
 a ~ normal(mu_a, sigma_a);
 b ~ normal(0,100);
+c ~ normal(0,100);
 y ~ normal(mu, sigma[type]);
 }
 generated quantities{
@@ -63,7 +85,7 @@ for(j in 1:J){
 draws1[n] = normal_rng(mu[n], sigma[j]); //posterior draws
 }
 for(j in 1:J){
-palat[j] = a[j] + b[j].*m_x;
+palat[j] = a[j] + b[j].*m_x + c[j].*m_m;
 }
 pref[1] = palat[1] - palat[2];
 }
@@ -79,7 +101,9 @@ model_data = list(
   'y' = hopper_data$diff,
   'type' = as.numeric(as.factor(hopper_data$breed)),
   'x' =  hopper_data$grasshopper_mass,
-  'm_x' = mean(hopper_data$grasshopper_mass)
+  'm_x' = mean(hopper_data$grasshopper_mass),
+  'mass' = hopper_data$wet_initial,
+  'm_m' = mean(hopper_data$wet_initial)
 )
 ## sampling
 fit1 = sampling(
@@ -108,10 +132,9 @@ model_stats1 <-
         summary_fit$summary[, 10, drop = F])
 
 
-ggdata <- as.data.frame(model_stats1[51:52,])
+ggdata <- as.data.frame(model_stats1[53:54,])
 ggdata <- ggdata[-2,]
-labelplot <- expression(paste("Cultivar -\n Native"))
-pdf(file="preference.pdf",height=1.5,width=4)
+labelplot <- expression(paste("Cultivar -\n wild type"))
 ggplot(ggdata, aes(y=rownames(ggdata), x=mean)) +
   xlab("Mass consumed difference (mg)") +
   ylab("Preference") +
@@ -121,9 +144,9 @@ ggplot(ggdata, aes(y=rownames(ggdata), x=mean)) +
   scale_color_manual(values=c("black")) +
   scale_y_discrete(labels = labelplot)+
   theme(legend.position="none") +
-  geom_vline(xintercept = 0) +
-  geom_errorbarh(aes(xmin=`2.5%`, xmax=`97.5%`), size=1)
-dev.off()
+  geom_errorbarh(aes(xmin=`2.5%`, xmax=`97.5%`), size=1) +
+  geom_vline(xintercept = 0)
+ggsave(file="preference.pdf",height=1.5,width=4)
 
 #############################################################
 ## combine palatability and preference on one plot
@@ -137,7 +160,7 @@ model_stats1 <-
         summary_fit$summary[, 10, drop = F])
 
 
-ggdata1 <- as.data.frame(model_stats1[89:90,])
+ggdata1 <- as.data.frame(model_stats1[91:92,])
 
 load("Preference.output.R")
 
@@ -148,10 +171,10 @@ model_stats2 <-
         summary_fit$summary[, 10, drop = F])
 
 
-ggdata2 <- as.data.frame(model_stats2[90:91,]) ; ggdata2 <- ggdata2[-1,]
+ggdata2 <- as.data.frame(model_stats2[53:54,]) ; ggdata2 <- ggdata2[-2,]
 
-ggdat <- rbind(ggdata1,ggdata2) ; ggdat$facet.var <- c(rep("Palatability",2),"Preference") ; ggdat$type <- c("Cultivar","Native","Cultivar - \nNative") ; ggdat$lett <- c("a",NA,"b")
-ggdat$x <- c(20,NA,33) ; 
+ggdat <- rbind(ggdata1,ggdata2) ; ggdat$facet.var <- c(rep("Palatability",2),"Preference") ; ggdat$type <- c("Cultivar","Wild type","Cultivar - \nwild type") ; ggdat$lett <- c("a",NA,"b")
+ggdat$x <- c(25,NA,24) ; 
 ggdat$y <- c(2,NA,1.2)
 
 ggplot(ggdat, aes(y=type, x=mean, color=type)) +
@@ -166,7 +189,7 @@ ggplot(ggdat, aes(y=type, x=mean, color=type)) +
   facet_wrap(~facet.var,scales = "free", nrow=2) +
   geom_errorbarh(aes(xmin=`2.5%`, xmax=`97.5%`), size=1) +
   geom_text( mapping = aes(x = x, y = y, label = lett),
-    hjust   = -0.1,
+    hjust   = 0.5,
     vjust   = -1,
     color = "black",
     size=8
