@@ -1,6 +1,6 @@
 ###########################################################################################
 ##
-## R source code to accompany Hoffman, Perretta, Lemoine, and Smith (2019), last updated 14 December 2018.
+## R source code to accompany Hoffman, Perretta, Lemoine, and Smith (2019), last updated 22 Feb 2019.
 ## Please contact Ava Hoffman (avamariehoffman@gmail.com) with questions.
 ##
 ## If you found this code useful, please cite the accompanying paper. Thank you! :)
@@ -11,7 +11,6 @@
 ## SET YOUR WORKING DIRECTORY TO WHEREVER YOU HAVE DOWNLOADED ACCOMPANYING FILES
 wd <- '<your path here>'
 setwd(wd)
-setwd("/Users/avahoffman/Dropbox/Research/Mentoring/Holly/final_data")
 
 library(ggplot2)
 
@@ -22,6 +21,13 @@ library(ggplot2)
 
 hopper_water <- read.csv("water_weight_data.csv",header=T)
 part <- hopper_water[!(hopper_water$type == "w-old"),]
+
+# calculate scaling equations
+cultivated <- subset(part, type == "c")
+wt <- subset(part, type == "w")
+summary(lm(dry~wet, data=cultivated))
+summary(lm(dry~wet, data=wt))
+
 part$ldmc <- part$dry / (part$wet /1000)
 c1 <- subset(part, type == "c")
 n=w1 <- subset(part, type == "w")

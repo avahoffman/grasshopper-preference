@@ -1,0 +1,41 @@
+expt_no,time_expt-h,sample_no,breed,treat,container_type,grasshopper_id,gh_note,grasshopper_mass,wet_initial,dry_final,EXTRAP_dry_initial,diff
+1,88,C1,C,alone,Cultivar only,3,,87.8,422.9,123.7,145.41003,21.71003
+1,88,C2,C,alone,Cultivar only,3,,87.8,427.4,121.4,147.01068,25.61068
+1,88,C3,C,alone,Cultivar only,3,,87.8,230.5,62.6,76.97335,14.37335
+1,88,C4,C,alone,Cultivar only,3,,87.8,385.6,109,132.14242,23.14242
+2,63,C1,C,alone,Cultivar only,4,,84,348.5,122.8,118.94595,-3.85405
+2,63,C2,C,alone,Cultivar only,4,,84,210.1,62.6,69.71707,7.11707
+2,63,C3,C,alone,Cultivar only,4,,84,509.6,117.6,176.24922,58.64922
+2,63,C4,C,alone,Cultivar only,4,,84,329.7,108,112.25879,4.25879
+3,72,C1,C,alone,Cultivar only,7,possibly died,149.3,252.4,48.5,84.76318,36.26318
+3,72,C2,C,alone,Cultivar only,7,possibly died,149.3,253.6,51.1,85.19002,34.09002
+3,72,C3,C,alone,Cultivar only,7,possibly died,149.3,226.6,44,75.58612,31.58612
+3,72,C4,C,alone,Cultivar only,7,possibly died,149.3,508.5,145.1,175.85795,30.75795
+3,72,C7,C,alone,Cultivar only,9,,75.5,276.8,75,93.44226,18.44226
+3,72,C8,C,alone,Cultivar only,9,,75.5,237.9,47.1,79.60553,32.50553
+3,72,C9,C,alone,Cultivar only,9,,75.5,146.3,53.8,47.02341,-6.77659
+3,72,C10,C,alone,Cultivar only,9,,75.5,363.5,116,124.28145,8.28145
+3,72,C13,C,alone,Cultivar only,11,,82.4,366.6,126.2,125.38412,-0.81588
+3,72,C14,C,alone,Cultivar only,11,,82.4,126.7,33.8,40.05169,6.25169
+3,72,C15,C,alone,Cultivar only,11,,82.4,209.6,51.6,69.53922,17.93922
+3,72,C16,C,alone,Cultivar only,11,,82.4,305.8,99.7,103.75756,4.05756
+1,88,W1,W,alone,Wild type only,2,,93,423.8,146.5,125.90922,-20.59078
+1,88,W2,W,alone,Wild type only,2,,93,707,238.2,208.7169,-29.4831
+1,88,W3,W,alone,Wild type only,2,,93,738.6,335.5,217.95674,-117.54326
+1,88,W4,W,alone,Wild type only,2,,93,396,159.2,117.7805,-41.4195
+2,63,W1,W,alone,Wild type only,5,,91.4,270.8,93.3,81.17202,-12.12798
+2,63,W2,W,alone,Wild type only,5,,91.4,445.8,129.5,132.34202,2.84202
+2,63,W3,W,alone,Wild type only,5,,91.4,255.4,102.2,76.66906,-25.53094
+2,63,W4,W,alone,Wild type only,5,,91.4,192.4,62.8,58.24786,-4.55214
+3,72,W1,W,alone,Wild type only,8,,120.3,374.1,91.3,111.37694,20.07694
+3,72,W2,W,alone,Wild type only,8,,120.3,166.1,56.9,50.55774,-6.34226
+3,72,W3,W,alone,Wild type only,8,,120.3,502.6,130,148.95034,18.95034
+3,72,W4,W,alone,Wild type only,8,,120.3,177.5,38.2,53.8911,15.6911
+3,72,W7,W,alone,Wild type only,10,,67.8,348,93.9,103.7453,9.8453
+3,72,W8,W,alone,Wild type only,10,,67.8,398.8,114.1,118.59922,4.49922
+3,72,W9,W,alone,Wild type only,10,,67.8,221.5,79.4,66.7567,-12.6433
+3,72,W10,W,alone,Wild type only,10,,67.8,465.7,91.2,138.16078,46.96078
+3,72,W13,W,alone,Wild type only,13,possibly died,84.7,451.6,105.4,134.03794,28.63794
+3,72,W14,W,alone,Wild type only,13,possibly died,84.7,293.9,86.5,87.92646,1.42646
+3,72,W15,W,alone,Wild type only,13,possibly died,84.7,478.7,145.2,141.96198,-3.23802
+3,72,W16,W,alone,Wild type only,13,possibly died,84.7,349.9,88.1,104.30086,16.20086

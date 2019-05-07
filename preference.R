@@ -1,6 +1,6 @@
 ###########################################################################################
 ##
-## R source code to accompany Hoffman, Perretta, Lemoine, and Smith (2019), last updated 14 December 2018.
+## R source code to accompany Hoffman, Perretta, Lemoine, and Smith (2019), last updated 22 Feb 2019.
 ## Please contact Ava Hoffman (avamariehoffman@gmail.com) with questions.
 ##
 ## If you found this code useful, please cite the accompanying paper. Thank you! :)

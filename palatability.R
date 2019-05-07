@@ -1,6 +1,6 @@
 ###########################################################################################
 ##
-## R source code to accompany Hoffman, Perretta, Lemoine, and Smith (2019), last updated 14 December 2018.
+## R source code to accompany Hoffman, Perretta, Lemoine, and Smith (2019), last updated 22 Feb 2019.
 ## Please contact Ava Hoffman (avamariehoffman@gmail.com) with questions.
 ##
 ## If you found this code useful, please cite the accompanying paper. Thank you! :)
@@ -11,7 +11,8 @@
 ## SET YOUR WORKING DIRECTORY TO WHEREVER YOU HAVE DOWNLOADED ACCOMPANYING FILES
 wd <- '<your path here>'
 setwd(wd)
-setwd("/Users/avahoffman/Dropbox/Research/Mentoring/Holly/final_data")
+
+
 library(ggplot2)
 
 ###########################################################################################
@@ -37,6 +38,9 @@ ggplot(hopper_data, aes(x=container_type, y=diff, color=container_type)) + geom_
 ggplot(hopper_data) + geom_density(aes(x=diff,fill=breed),alpha=0.5) + theme_classic() +
   xlab("Mass consumed (mg)") +
   scale_fill_manual(values=c("springgreen3","darkgreen"),labels=c("Cultivar","Wild type"))
+
+## test for expt duration effect (frequentist)
+summary(lm(diff~ time_expt.h, data=hopper_data))
 
 library(rstan)
 options(mc.cores = parallel::detectCores())
