@@ -8,4 +8,4 @@ We performed an experimental study to test the palatability and preference of na
 
 This study indicates that choice of accession in shortgrass steppe restoration efforts could have broader ecological effects. Herbivores may be particularly impacted by different nutrient availability among plant ecotypes. Managers will have to weight the costs and benefits of commercial cultivars versus uncultivated native accessions when considering how they might be affected by arthropod herbivores.
 
-**Data available upon request**
+
