@@ -1,5 +1,7 @@
 # grasshopper-preference
 
+### Code to accompany: *Blue grama grass genotype affects palatability and preference by semi-arid steppe grasshoppers*
+
 [![DOI](https://zenodo.org/badge/doi/10.1016/j.actao.2019.03.001.svg)](https://doi.org/10.1016/j.actao.2019.03.001)
 
 Do grasshoppers prefer genetically different cultivars of *Bouteloua* grass?
